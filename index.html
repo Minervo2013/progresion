@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#FF6B35">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GymTracker">
+  <title>GymTracker Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <header class="app-header">
+    <h1 id="page-title">GymTracker</h1>
+    <div id="header-actions"></div>
+  </header>
+
+  <main id="main-content">
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view active">
+      <div class="card" style="margin-bottom:.5rem">
+        <h2 style="font-size:1rem;margin-bottom:.5rem">
+          Hoy, <span id="today-date" style="color:var(--text2);font-weight:400"></span>
+        </h2>
+        <div id="today-workout-card"></div>
+      </div>
+      <div class="section-title">Esta semana / mes</div>
+      <div id="dashboard-stats" class="stats-grid"></div>
+      <div class="section-title">Actividad reciente</div>
+      <div id="recent-activity"></div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section id="view-calendar" class="view">
+      <div class="calendar-nav">
+        <button id="prev-month" class="btn-icon">‹</button>
+        <h2 id="calendar-month" style="font-size:1rem"></h2>
+        <button id="next-month" class="btn-icon">›</button>
+      </div>
+      <div id="calendar-grid" class="calendar-grid"></div>
+    </section>
+
+    <!-- LOG WORKOUT -->
+    <section id="view-log" class="view">
+      <div id="log-header"></div>
+      <div id="log-content"></div>
+    </section>
+
+    <!-- CHARTS / HISTORY / PRs -->
+    <section id="view-charts" class="view">
+      <div class="progress-tabs">
+        <button class="progress-tab active" data-tab="charts">📊 Gráficas</button>
+        <button class="progress-tab" data-tab="history">📋 Historial</button>
+        <button class="progress-tab" data-tab="prs">🏆 PRs</button>
+      </div>
+
+      <div id="progress-charts" class="progress-panel active">
+        <div class="filter-bar">
+          <select id="chart-exercise-select" class="select-input full-width">
+            <option value="">Seleccionar ejercicio...</option>
+          </select>
+        </div>
+        <div id="charts-content"></div>
+      </div>
+
+      <div id="progress-history" class="progress-panel">
+        <div id="history-list"></div>
+      </div>
+
+      <div id="progress-prs" class="progress-panel">
+        <div id="prs-list"></div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="view-config" class="view">
+      <div class="config-tabs">
+        <button class="config-tab active" data-tab="workout-types">Rutinas</button>
+        <button class="config-tab" data-tab="exercises">Ejercicios</button>
+      </div>
+      <div id="config-workout-types" class="config-panel active">
+        <button id="add-workout-type" class="btn-primary btn-block" style="margin-bottom:.75rem">+ Nueva Rutina</button>
+        <div id="workout-types-list"></div>
+      </div>
+      <div id="config-exercises" class="config-panel">
+        <button id="add-exercise" class="btn-primary btn-block" style="margin-bottom:.75rem">+ Nuevo Ejercicio</button>
+        <div id="exercises-list"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="dashboard">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-item" data-view="calendar">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Calendario</span>
+    </button>
+    <button class="nav-item nav-center" data-view="log">
+      <span class="nav-icon">➕</span>
+      <span class="nav-label">Hoy</span>
+    </button>
+    <button class="nav-item" data-view="charts">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Progresión</span>
+    </button>
+    <button class="nav-item" data-view="config">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Config</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div id="modal" class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button id="modal-close" class="btn-icon">✕</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/log.js"></script>
+<script src="js/config.js"></script>
+<script src="js/progress.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

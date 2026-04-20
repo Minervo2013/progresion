@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#0d0d0d"/>
+  <!-- barra -->
+  <rect x="60" y="236" width="392" height="40" rx="8" fill="#FF6B35"/>
+  <!-- pesas izquierda -->
+  <rect x="48" y="168" width="52" height="176" rx="14" fill="#FF6B35"/>
+  <rect x="20" y="196" width="44" height="120" rx="14" fill="#FF9F1C"/>
+  <!-- pesas derecha -->
+  <rect x="412" y="168" width="52" height="176" rx="14" fill="#FF6B35"/>
+  <rect x="448" y="196" width="44" height="120" rx="14" fill="#FF9F1C"/>
+</svg>
