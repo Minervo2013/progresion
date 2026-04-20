@@ -84,7 +84,7 @@ function renderDashboard() {
   const [y, m, d] = today.split('-');
   const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const dayName = days[new Date(today).getDay()];
+  const dayName = days[new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay()];
 
   document.getElementById('today-date').textContent = `${dayName} ${parseInt(d)} de ${months[parseInt(m)-1]}`;
 
