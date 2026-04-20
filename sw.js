@@ -1,10 +1,11 @@
-const CACHE = 'gymtracker-v1';
+const CACHE = 'gymtracker-v2';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
   './js/db.js',
+  './js/exercisedb.js',
   './js/app.js',
   './js/calendar.js',
   './js/log.js',

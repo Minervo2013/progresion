@@ -4,9 +4,32 @@ const COLORS = ['#FF6B35','#FF9F1C','#2EC4B6','#9B5DE5','#e74c3c','#3498db','#2e
 function renderConfig() {
   renderWorkoutTypes();
   renderExercisesList();
+  renderApiKeyInput();
 
   document.getElementById('add-workout-type').onclick = () => openWorkoutTypeModal();
   document.getElementById('add-exercise').onclick     = () => openExerciseModal();
+  document.getElementById('search-exercisedb').onclick = () => openExerciseDBSearch();
+}
+
+function renderApiKeyInput() {
+  const container = document.getElementById('api-key-section');
+  if (!container) return;
+  const saved = EDBAPI.getKey();
+  container.innerHTML = `
+    <div class="api-key-bar">
+      <input type="password" id="rapid-api-key" class="text-input" style="flex:1;font-size:.8rem"
+             placeholder="RapidAPI Key (ExerciseDB)" value="${escapeHtml(saved)}">
+      <button class="btn-outline" onclick="saveApiKey()" style="white-space:nowrap">Guardar</button>
+    </div>
+    ${saved ? '<span style="font-size:.72rem;color:var(--teal)">✓ API key configurada</span>' : '<span style="font-size:.72rem;color:var(--text2)">Sin API key — <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank">obtener gratis</a></span>'}`;
+}
+
+function saveApiKey() {
+  const input = document.getElementById('rapid-api-key');
+  if (!input) return;
+  EDBAPI.setKey(input.value);
+  showToast('API key guardada');
+  renderApiKeyInput();
 }
 
 // ─── Workout Types ────────────────────────────────────────────────────────────
