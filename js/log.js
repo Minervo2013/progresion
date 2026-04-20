@@ -124,7 +124,11 @@ function renderExerciseBlock(ex, exIdx) {
           <span class="ex-group">${escapeHtml(group)}</span>
           ${prevHint}
         </div>
-        <button class="btn-icon-sm" onclick="removeExerciseFromLog(${exIdx})">✕</button>
+        <div class="ex-move-btns">
+          <button class="btn-icon-sm" onclick="moveExercise(${exIdx},-1)" ${exIdx === 0 ? 'disabled' : ''} title="Subir">↑</button>
+          <button class="btn-icon-sm" onclick="moveExercise(${exIdx}, 1)" ${exIdx === currentLog.exercises.length - 1 ? 'disabled' : ''} title="Bajar">↓</button>
+          <button class="btn-icon-sm danger" onclick="removeExerciseFromLog(${exIdx})">✕</button>
+        </div>
       </div>
 
       <div class="sets-table">
@@ -185,6 +189,15 @@ function removeSet(exIdx, setIdx) {
   sets.splice(setIdx, 1);
   const container = document.getElementById('sets-' + exIdx);
   container.innerHTML = currentLog.exercises[exIdx].sets.map((s, i) => renderSetRow(exIdx, i, s)).join('');
+}
+
+function moveExercise(exIdx, dir) {
+  if (!currentLog) return;
+  const exs = currentLog.exercises;
+  const newIdx = exIdx + dir;
+  if (newIdx < 0 || newIdx >= exs.length) return;
+  [exs[exIdx], exs[newIdx]] = [exs[newIdx], exs[exIdx]];
+  renderLogEditor(document.getElementById('log-content'));
 }
 
 function removeExerciseFromLog(exIdx) {

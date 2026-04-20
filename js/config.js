@@ -4,32 +4,9 @@ const COLORS = ['#FF6B35','#FF9F1C','#2EC4B6','#9B5DE5','#e74c3c','#3498db','#2e
 function renderConfig() {
   renderWorkoutTypes();
   renderExercisesList();
-  renderApiKeyInput();
 
   document.getElementById('add-workout-type').onclick = () => openWorkoutTypeModal();
   document.getElementById('add-exercise').onclick     = () => openExerciseModal();
-  document.getElementById('search-exercisedb').onclick = () => openExerciseDBSearch();
-}
-
-function renderApiKeyInput() {
-  const container = document.getElementById('api-key-section');
-  if (!container) return;
-  const saved = EDBAPI.getKey();
-  container.innerHTML = `
-    <div class="api-key-bar">
-      <input type="password" id="rapid-api-key" class="text-input" style="flex:1;font-size:.8rem"
-             placeholder="RapidAPI Key (ExerciseDB)" value="${escapeHtml(saved)}">
-      <button class="btn-outline" onclick="saveApiKey()" style="white-space:nowrap">Guardar</button>
-    </div>
-    ${saved ? '<span style="font-size:.72rem;color:var(--teal)">✓ API key configurada</span>' : '<span style="font-size:.72rem;color:var(--text2)">Sin API key — <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank">obtener gratis</a></span>'}`;
-}
-
-function saveApiKey() {
-  const input = document.getElementById('rapid-api-key');
-  if (!input) return;
-  EDBAPI.setKey(input.value);
-  showToast('API key guardada');
-  renderApiKeyInput();
 }
 
 // ─── Workout Types ────────────────────────────────────────────────────────────
@@ -56,28 +33,15 @@ function renderWorkoutTypes() {
     </div>`).join('');
 }
 
+let wtModalOrder = [];
+
 function openWorkoutTypeModal(id = null) {
   const wt = id ? DB.getWorkoutType(id) : { id: null, name: '', color: COLORS[0], exerciseIds: [] };
-  const exercises = DB.getExercises();
-
-  const byGroup = {};
-  exercises.forEach(ex => {
-    if (!byGroup[ex.muscleGroup]) byGroup[ex.muscleGroup] = [];
-    byGroup[ex.muscleGroup].push(ex);
-  });
+  wtModalOrder = [...(wt.exerciseIds || [])];
 
   const colorOpts = COLORS.map(c => `
     <button type="button" class="color-btn ${wt.color === c ? 'selected' : ''}"
             style="background:${c}" data-color="${c}" onclick="selectWTColor(this,'${c}')"></button>`).join('');
-
-  const exChecks = Object.entries(byGroup).map(([group, exs]) => `
-    <div class="ex-group-label">${escapeHtml(group)}</div>
-    ${exs.map(ex => `
-      <label class="check-item">
-        <input type="checkbox" value="${ex.id}" ${wt.exerciseIds.includes(ex.id) ? 'checked' : ''}>
-        ${escapeHtml(ex.name)}
-      </label>`).join('')}
-  `).join('');
 
   openModal(id ? 'Editar rutina' : 'Nueva rutina', `
     <div class="form-group">
@@ -90,11 +54,80 @@ function openWorkoutTypeModal(id = null) {
       <input type="hidden" id="wt-color" value="${wt.color}">
     </div>
     <div class="form-group">
-      <label>Ejercicios</label>
-      <div class="ex-checks">${exChecks}</div>
+      <label>Ejercicios seleccionados <span style="color:var(--text2);font-weight:400;font-size:.75rem">(arrastrá ↑↓ para ordenar)</span></label>
+      <div id="wt-ex-ordered"></div>
+      <label style="margin-top:.75rem;display:block">Agregar ejercicios</label>
+      <div id="wt-ex-available" class="ex-checks"></div>
     </div>
     <button class="btn-primary btn-block" onclick="saveWorkoutTypeFromModal('${wt.id || ''}')">Guardar</button>
   `);
+
+  renderWTExerciseLists();
+}
+
+function renderWTExerciseLists() {
+  const exercises  = DB.getExercises();
+  const orderedEl  = document.getElementById('wt-ex-ordered');
+  const availableEl = document.getElementById('wt-ex-available');
+  if (!orderedEl || !availableEl) return;
+
+  // Ordered selected list
+  if (!wtModalOrder.length) {
+    orderedEl.innerHTML = '<p style="color:var(--text2);font-size:.8rem;padding:.4rem">Sin ejercicios — agregá desde abajo</p>';
+  } else {
+    orderedEl.innerHTML = wtModalOrder.map((exId, idx) => {
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return '';
+      return `
+        <div class="wt-order-item">
+          <span class="wt-order-num">${idx + 1}</span>
+          <span class="wt-order-name">${escapeHtml(ex.name)}</span>
+          <span style="font-size:.7rem;color:var(--text2)">${escapeHtml(ex.muscleGroup)}</span>
+          <div class="wt-order-btns">
+            <button class="btn-icon-sm" onclick="moveWTExercise(${idx},-1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+            <button class="btn-icon-sm" onclick="moveWTExercise(${idx}, 1)" ${idx === wtModalOrder.length-1 ? 'disabled' : ''}>↓</button>
+            <button class="btn-icon-sm danger" onclick="removeWTExercise('${exId}')">✕</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Available (not yet selected), grouped
+  const unselected = exercises.filter(e => !wtModalOrder.includes(e.id));
+  const byGroup = {};
+  unselected.forEach(ex => {
+    if (!byGroup[ex.muscleGroup]) byGroup[ex.muscleGroup] = [];
+    byGroup[ex.muscleGroup].push(ex);
+  });
+
+  if (!unselected.length) {
+    availableEl.innerHTML = '<p style="color:var(--text2);font-size:.8rem;padding:.4rem">Todos los ejercicios ya están incluidos</p>';
+  } else {
+    availableEl.innerHTML = Object.entries(byGroup).map(([group, exs]) => `
+      <div class="ex-group-label">${escapeHtml(group)}</div>
+      ${exs.map(ex => `
+        <label class="check-item" onclick="addWTExercise('${ex.id}');return false">
+          <span>+</span> ${escapeHtml(ex.name)}
+        </label>`).join('')}
+    `).join('');
+  }
+}
+
+function moveWTExercise(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= wtModalOrder.length) return;
+  [wtModalOrder[idx], wtModalOrder[newIdx]] = [wtModalOrder[newIdx], wtModalOrder[idx]];
+  renderWTExerciseLists();
+}
+
+function removeWTExercise(exId) {
+  wtModalOrder = wtModalOrder.filter(id => id !== exId);
+  renderWTExerciseLists();
+}
+
+function addWTExercise(exId) {
+  if (!wtModalOrder.includes(exId)) wtModalOrder.push(exId);
+  renderWTExerciseLists();
 }
 
 function selectWTColor(btn, color) {
@@ -106,7 +139,7 @@ function selectWTColor(btn, color) {
 function saveWorkoutTypeFromModal(id) {
   const name = document.getElementById('wt-name').value.trim();
   const color = document.getElementById('wt-color').value;
-  const exerciseIds = [...document.querySelectorAll('.ex-checks input:checked')].map(cb => cb.value);
+  const exerciseIds = [...wtModalOrder];
 
   if (!name) return showToast('El nombre es obligatorio', 'error');
 

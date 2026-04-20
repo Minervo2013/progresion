@@ -472,26 +472,18 @@ input[type=number] { -moz-appearance: textfield; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* ─── ExerciseDB ─────────────────────────────────────────────────────────────── */
-.api-key-bar { display: flex; gap: .4rem; align-items: center; }
+/* ─── Exercise reorder (log) ─────────────────────────────────────────────────── */
+.ex-move-btns { display: flex; gap: .15rem; align-items: center; }
+.ex-move-btns .btn-icon-sm:disabled { opacity: .25; cursor: default; }
 
-.edb-search-bar { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
-.edb-search-bar .text-input { flex: 1; min-width: 120px; }
-.edb-search-bar .select-input { flex: 1; min-width: 120px; }
+/* ─── Workout type ordered exercise list ─────────────────────────────────────── */
+.wt-order-item {
+  display: flex; align-items: center; gap: .4rem;
+  background: var(--card2); border-radius: 7px; padding: .4rem .5rem;
+  margin-bottom: .3rem;
+}
+.wt-order-num { font-size: .7rem; color: var(--accent); font-weight: 700; min-width: 16px; text-align:center; }
+.wt-order-name { font-size: .85rem; font-weight: 600; flex: 1; }
+.wt-order-btns { display: flex; gap: .1rem; margin-left: auto; }
+.wt-order-btns .btn-icon-sm:disabled { opacity: .25; cursor: default; }
 
-.edb-result-card {
-  display: flex; gap: .75rem; align-items: flex-start;
-  background: var(--card); border-radius: 10px; padding: .6rem;
-  margin-bottom: .5rem; border: 1px solid var(--border);
-}
-.edb-gif {
-  width: 80px; height: 80px; border-radius: 8px; object-fit: cover;
-  background: var(--card2); flex-shrink: 0;
-}
-.edb-info { flex: 1; min-width: 0; }
-.edb-name { font-size: .85rem; font-weight: 600; margin-bottom: .25rem; }
-.edb-meta { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .25rem; }
-.edb-tag {
-  background: var(--card2); color: var(--text2); border-radius: 4px;
-  padding: .1rem .4rem; font-size: .65rem; font-weight: 500; text-transform: capitalize;
-}
