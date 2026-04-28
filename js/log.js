@@ -110,11 +110,16 @@ function renderExerciseBlock(ex, exIdx) {
   const name = exercise ? exercise.name : 'Ejercicio desconocido';
   const group = exercise ? exercise.muscleGroup : '';
 
-  const history = DB.getExerciseHistory(ex.exerciseId);
-  const lastSession = history.length >= 2 ? history[history.length - 2] : (history.length === 1 ? null : null);
-  const prevHint = lastSession
-    ? `<span class="prev-hint">Última vez: ${lastSession.maxWeight}kg</span>`
-    : '';
+  const history    = DB.getExerciseHistory(ex.exerciseId);
+  const lastSession = history.length ? history[history.length - 1] : null;
+  let prevHint = '';
+  if (lastSession && lastSession.sets.length) {
+    const setsStr = lastSession.sets
+      .filter(s => s.weight || s.reps)
+      .map(s => `${s.weight || 0}kg×${s.reps || 0}`)
+      .join(' · ');
+    prevHint = `<span class="prev-hint">Última vez (${formatDate(lastSession.date)}): ${setsStr}</span>`;
+  }
 
   return `
     <div class="exercise-block" id="ex-block-${exIdx}">
